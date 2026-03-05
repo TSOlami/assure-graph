@@ -1,137 +1,54 @@
 "use client";
 
 import Link from "next/link";
-import { Logo } from "@/components/global/Logo";
-import { Button } from "@/components/ui/button";
-
-const SOLUTION_LINKS = [
-  { label: "GRC", href: "#" },
-  { label: "IT Audit", href: "#" },
-  { label: "Security", href: "#" },
-  { label: "Risk", href: "#" },
-  { label: "SaaS", href: "#" },
-  { label: "Compliance", href: "#" },
-];
-
-const PRODUCT_LINKS = [
-  { label: "About", href: "#" },
-  { label: "Contact", href: "#contact" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "Features", href: "#solutions" },
-  { label: "Integrations", href: "/integrations" },
-  { label: "Testimonials", href: "#" },
-];
-
-const RESOURCE_LINKS = [
-  { label: "Docs", href: "#" },
-  { label: "Blog", href: "#" },
-  { label: "Support", href: "#" },
-  { label: "Community", href: "#" },
-  { label: "Legal", href: "#" },
-  { label: "Partners", href: "#" },
-];
+import { Shield } from "lucide-react";
 
 export function LandingFooter() {
   return (
-    <footer
-      className="px-4 py-12 sm:px-6 sm:py-16 md:px-8 md:py-20 lg:px-12"
-      style={{ backgroundColor: "#111827" }}
-    >
-      <div className="mx-auto max-w-[1152px]">
-        <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-[1fr_auto_auto_auto] lg:gap-12">
-          <div className="max-w-sm space-y-4 sm:col-span-2 md:col-span-3 lg:col-span-1">
-            <Logo variant="dark" />
-            <p className="text-sm text-white/70">
-              A powerful compliance tool that makes audits easy. Connect data,
-              prove everywhere.
+    <footer className="bg-gray-50 border-t py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid md:grid-cols-4 gap-8">
+          <div>
+            <Link href="/" className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 bg-[#E85A2B] rounded-lg flex items-center justify-center">
+                <Shield className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-xl font-bold text-gray-900">AssureGraph</span>
+            </Link>
+            <p className="text-sm text-gray-600">
+              AI-powered GRC platform for modern enterprises.
             </p>
-            <div className="flex flex-wrap gap-3">
-              <Button
-                asChild
-                variant="outline"
-                size="sm"
-                className="h-10 min-w-[120px] border-white/30 bg-transparent text-white hover:bg-white/10"
-              >
-                <Link href="/get-started">Get started</Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                size="sm"
-                className="h-10 min-w-[120px] border-brand-5 bg-transparent text-brand-3 hover:bg-brand-5/20"
-              >
-                <Link href="/#solutions">Learn more</Link>
-              </Button>
-            </div>
           </div>
-
           <div>
-            <h4 className="mb-4 text-sm font-semibold text-white">Solutions</h4>
-            <ul className="space-y-3">
-              {SOLUTION_LINKS.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-white/70 transition-colors hover:text-white"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
+            <h4 className="font-semibold text-gray-900 mb-4">Product</h4>
+            <ul className="space-y-2 text-sm">
+              <li><Link href="#features" className="text-gray-600 hover:text-gray-900">Features</Link></li>
+              <li><Link href="#ai" className="text-gray-600 hover:text-gray-900">AssureAI</Link></li>
+              <li><Link href="#integrations" className="text-gray-600 hover:text-gray-900">Integrations</Link></li>
+              <li><Link href="#pricing" className="text-gray-600 hover:text-gray-900">Pricing</Link></li>
             </ul>
           </div>
-
           <div>
-            <h4 className="mb-4 text-sm font-semibold text-white">Product</h4>
-            <ul className="space-y-3">
-              {PRODUCT_LINKS.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-white/70 transition-colors hover:text-white"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
+            <h4 className="font-semibold text-gray-900 mb-4">Resources</h4>
+            <ul className="space-y-2 text-sm">
+              <li><Link href="#" className="text-gray-600 hover:text-gray-900">Documentation</Link></li>
+              <li><Link href="#" className="text-gray-600 hover:text-gray-900">Blog</Link></li>
+              <li><Link href="#" className="text-gray-600 hover:text-gray-900">Webinars</Link></li>
+              <li><Link href="#" className="text-gray-600 hover:text-gray-900">Support</Link></li>
             </ul>
           </div>
-
           <div>
-            <h4 className="mb-4 text-sm font-semibold text-white">Resources</h4>
-            <ul className="space-y-3">
-              {RESOURCE_LINKS.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-white/70 transition-colors hover:text-white"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
+            <h4 className="font-semibold text-gray-900 mb-4">Company</h4>
+            <ul className="space-y-2 text-sm">
+              <li><Link href="#" className="text-gray-600 hover:text-gray-900">About</Link></li>
+              <li><Link href="#" className="text-gray-600 hover:text-gray-900">Careers</Link></li>
+              <li><Link href="#" className="text-gray-600 hover:text-gray-900">Contact</Link></li>
+              <li><Link href="#" className="text-gray-600 hover:text-gray-900">Privacy</Link></li>
             </ul>
           </div>
         </div>
-
-        <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 sm:mt-12 sm:flex-row">
-          <p className="text-sm text-white/60">
-            © 2023 AssureGraph. All rights reserved.
-          </p>
-          <div className="flex gap-6">
-            <Link
-              href="#"
-              className="text-sm text-white/70 transition-colors hover:text-white"
-            >
-              Privacy Policy
-            </Link>
-            <Link
-              href="#"
-              className="text-sm text-white/70 transition-colors hover:text-white"
-            >
-              Terms & Conditions
-            </Link>
-          </div>
+        <div className="mt-12 pt-8 border-t text-center text-sm text-gray-500">
+          © 2024 AssureGraph. All rights reserved.
         </div>
       </div>
     </footer>

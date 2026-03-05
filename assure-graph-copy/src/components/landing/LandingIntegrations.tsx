@@ -1,64 +1,58 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { INTEGRATIONS } from "@/data/integrations";
+import {
+  Globe,
+  Lock,
+  Cpu,
+  Zap,
+  Users,
+  FileText,
+  ArrowRight,
+} from "lucide-react";
 
-const LANDING_INTEGRATIONS = [
-  "salesforce",
-  "jira",
-  "aws",
-  "slack",
-  "azure",
-  "github",
-].map((id) => INTEGRATIONS.find((i) => i.id === id)).filter(Boolean);
+const integrations = [
+  { icon: Globe, name: "AWS" },
+  { icon: Lock, name: "Azure" },
+  { icon: Cpu, name: "GCP" },
+  { icon: Zap, name: "Slack" },
+  { icon: Users, name: "Okta" },
+  { icon: FileText, name: "Jira" },
+];
 
 export function LandingIntegrations() {
   return (
-    <section id="integrations" className="bg-white px-4 py-12 sm:px-6 sm:py-16 md:px-8 md:py-20 lg:px-12">
-      <div className="mx-auto max-w-[1152px]">
-        <div className="mb-8 text-center sm:mb-12">
-          <h2 className="text-2xl font-semibold text-[#212B36] sm:text-3xl md:text-4xl">
-            Integrations
+    <section id="integrations" className="py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <Badge className="mb-4 bg-orange-100 text-[#E85A2B] hover:bg-orange-100">Integrations</Badge>
+          <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+            Connect Your Entire Stack
           </h2>
-          <p className="mx-auto mt-3 max-w-2xl text-sm text-[#637381] sm:mt-4 sm:text-base">
-            We match your existing tech stack and allow you to unify all your
-            data and achieve a single source of truth.
+          <p className="text-lg text-gray-600">
+            Integrate with 100+ tools to automatically collect evidence,
+            sync tasks, and maintain continuous compliance.
           </p>
         </div>
-
-        <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 scrollbar-hide sm:mx-0 sm:flex-wrap sm:justify-center sm:gap-6 sm:overflow-visible sm:px-0 sm:pb-0">
-          {LANDING_INTEGRATIONS.map((integration) =>
-            integration ? (
-              <div
-                key={integration.id}
-                className="flex h-16 w-16 shrink-0 snap-center flex-col items-center justify-center gap-1.5 rounded-xl border border-[#E5E7EB] bg-white p-3 shadow-sm transition-shadow hover:shadow-md sm:h-20 sm:w-20 sm:gap-2 sm:p-4"
-              >
-                <Image
-                  src={integration.logoUrl}
-                  alt={integration.name}
-                  width={40}
-                  height={40}
-                  className="h-8 w-8 object-contain sm:h-10 sm:w-10"
-                />
-                <span className="text-[10px] font-medium text-[#637381] sm:text-xs">
-                  {integration.name}
-                </span>
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-8 items-center justify-items-center opacity-60">
+          {integrations.map((integration) => (
+            <div key={integration.name} className="flex flex-col items-center gap-2">
+              <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center">
+                <integration.icon className="w-8 h-8 text-gray-600" />
               </div>
-            ) : null
-          )}
+              <span className="text-sm text-gray-600">{integration.name}</span>
+            </div>
+          ))}
         </div>
-
-        <div className="mt-8 flex justify-center sm:mt-10">
-          <Button
-            asChild
-            variant="outline"
-            size="lg"
-            className="h-11 w-full min-w-[200px] border-brand-5 bg-white text-brand-5 hover:bg-brand-0-5 hover:text-brand-6 sm:w-auto"
-          >
-            <Link href="/integrations">See all integrations</Link>
-          </Button>
+        <div className="text-center mt-12">
+          <Link href="/dashboard/integrations">
+            <Button variant="outline" className="gap-2">
+              View All Integrations
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </Link>
         </div>
       </div>
     </section>
