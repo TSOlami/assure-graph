@@ -18,11 +18,10 @@ export function useAppLayout(): AppLayoutContextValue | null {
 
 interface AppLayoutProps {
   children: React.ReactNode;
-  /** Optional className for the main content area */
   mainClassName?: string;
 }
 
-export default function AppLayout({ children, mainClassName = "" }: AppLayoutProps) {
+export default function AppLayout({ children, mainClassName }: AppLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const toggleSidebar = () => setSidebarOpen((prev) => !prev);
@@ -31,25 +30,23 @@ export default function AppLayout({ children, mainClassName = "" }: AppLayoutPro
     <AppLayoutContext.Provider
       value={{ sidebarOpen, setSidebarOpen, toggleSidebar }}
     >
-      <div className="flex h-screen overflow-hidden">
-        {/* Mobile overlay when sidebar is open */}
-        <div
-          className={`
-            fixed inset-0 z-40 bg-black/20 backdrop-blur-sm transition-opacity lg:hidden
-            ${sidebarOpen ? "opacity-100" : "pointer-events-none opacity-0"}
-          `}
-          onClick={() => setSidebarOpen(false)}
-          aria-hidden="true"
-        />
-        <Sidebar
-          isOpen={sidebarOpen}
-          onClose={() => setSidebarOpen(false)}
-        />
-        <div className="flex-1 min-w-0 flex flex-col overflow-hidden ml-0 lg:ml-64">
-          <Header />
-          <main
-            className={`flex-1 overflow-y-auto p-4 sm:p-6 ${mainClassName}`}
-          >
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="flex">
+          {/* Mobile overlay */}
+          <div
+            className={`
+              fixed inset-0 z-20 bg-black/20 backdrop-blur-sm transition-opacity lg:hidden
+              ${sidebarOpen ? "opacity-100" : "pointer-events-none opacity-0"}
+            `}
+            onClick={() => setSidebarOpen(false)}
+            aria-hidden="true"
+          />
+          <Sidebar
+            isOpen={sidebarOpen}
+            onClose={() => setSidebarOpen(false)}
+          />
+          <main className={`flex-1 p-4 lg:p-6 overflow-auto lg:ml-64 min-h-[calc(100vh-64px)] ${mainClassName || ""}`}>
             {children}
           </main>
         </div>

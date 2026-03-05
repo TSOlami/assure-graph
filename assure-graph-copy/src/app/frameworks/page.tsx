@@ -4,7 +4,7 @@ import FrameworksContent from "@/components/frameworks/FrameworksContent";
 
 export default function FrameworksPage() {
   return (
-    <AppLayout mainClassName="p-0">
+    <AppLayout>
       <FrameworksContent />
     </AppLayout>
   );

@@ -1,99 +1,187 @@
 "use client";
 
-import { useState } from "react";
-import { FRAMEWORKS, Framework } from "@/data/frameworks";
-import AIBanner from "./AIBanner";
-import FrameworkCard from "./FrameworkCard";
-import EvidenceReuseChart from "./EvidenceReuseChart";
-import SharedRequirementsChart from "./SharedRequirementsChart";
-import RequirementsBreakdown from "./RequirementsBreakdown";
-import FrameworkDetailsModal from "./modals/FrameworkDetailsModal";
-import AIAutoMappingModal from "./modals/AIAutoMappingModal";
+import Link from "next/link";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Target, CheckCircle2, Clock, AlertCircle, Plus, ArrowRight, Sparkles } from "lucide-react";
 
-type ModalState =
-  | { type: "framework-details"; framework: Framework }
-  | { type: "ai-mapping" }
-  | null;
+const frameworks = [
+  {
+    name: "SOC 2 Type II",
+    provider: "AICPA",
+    progress: 94,
+    status: "compliant",
+    controls: { total: 127, passed: 119, failed: 5, pending: 3 },
+    lastAudit: "2024-01-15",
+    nextAudit: "2024-07-15",
+  },
+  {
+    name: "ISO 27001",
+    provider: "ISO",
+    progress: 87,
+    status: "in_progress",
+    controls: { total: 114, passed: 99, failed: 8, pending: 7 },
+    lastAudit: "2023-09-20",
+    nextAudit: "2024-09-20",
+  },
+  {
+    name: "PCI DSS",
+    provider: "PCI SSC",
+    progress: 78,
+    status: "attention",
+    controls: { total: 78, passed: 61, failed: 12, pending: 5 },
+    lastAudit: "2023-12-01",
+    nextAudit: "2024-06-01",
+  },
+  {
+    name: "HIPAA",
+    provider: "HHS",
+    progress: 91,
+    status: "compliant",
+    controls: { total: 45, passed: 41, failed: 2, pending: 2 },
+    lastAudit: "2024-02-01",
+    nextAudit: "2024-08-01",
+  },
+  {
+    name: "GDPR",
+    provider: "EU",
+    progress: 82,
+    status: "in_progress",
+    controls: { total: 68, passed: 56, failed: 8, pending: 4 },
+    lastAudit: "2023-11-15",
+    nextAudit: "2024-05-15",
+  },
+];
+
+const aiRecommendations = [
+  {
+    framework: "PCI DSS",
+    action: "Prioritize 5 failed controls affecting payment processing",
+    impact: "High business impact",
+  },
+  {
+    framework: "ISO 27001",
+    action: "Schedule internal audit for 7 pending controls",
+    impact: "Upcoming certification audit",
+  },
+];
 
 export default function FrameworksContent() {
-  const [modal, setModal] = useState<ModalState>(null);
-
   return (
-    <div className="flex flex-col min-h-full">
-      {/* Page Header */}
-      <div className="bg-white border-b border-slate-200 px-4 sm:px-6 pt-4 sm:pt-5 pb-4 sm:pb-5">
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-semibold text-gray-900 mb-1">
-              Frameworks
-            </h1>
-            <p className="text-sm text-gray-600">
-              One piece of evidence. Multiple frameworks satisfied.
-            </p>
-          </div>
-          <div className="flex items-center gap-3 shrink-0">
-            <button
-              onClick={() => setModal({ type: "ai-mapping" })}
-              className="flex items-center gap-2 px-3.5 py-2 text-sm font-medium text-brand-5 bg-transparent border border-transparent hover:bg-brand-0-5/60 rounded-lg transition-colors"
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8 2L9.5 5.5L13 7L9.5 8.5L8 12L6.5 8.5L3 7L6.5 5.5L8 2Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
-                <path d="M12.5 10L13.25 11.75L15 12.5L13.25 13.25L12.5 15L11.75 13.25L10 12.5L11.75 11.75L12.5 10Z" stroke="currentColor" strokeWidth="1" strokeLinejoin="round" />
-              </svg>
-              AI Auto-Mapping
-            </button>
-            <button className="flex items-center gap-2 px-3.5 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M2 4L8 2L14 4V9C14 12 11 14 8 15C5 14 2 12 2 9V4Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
-                <path d="M8 7V9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-                <path d="M6 8H10" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-              </svg>
-              Refresh All
-            </button>
-          </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Frameworks</h1>
+          <p className="text-gray-500">Manage compliance frameworks and track progress</p>
         </div>
+        <Button className="bg-[#E85A2B] hover:bg-[#d14d20] text-white gap-2">
+          <Plus className="w-4 h-4" />
+          Add Framework
+        </Button>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 p-4 sm:p-6 space-y-4 sm:space-y-6 bg-[#F5F5F7]">
-        {/* AI Banner */}
-        <AIBanner
-          onViewMappingDetails={() => setModal({ type: "ai-mapping" })}
-        />
+      {/* AI Recommendations */}
+      <Card className="border-orange-200 bg-gradient-to-r from-orange-50 to-white">
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-[#E85A2B]" />
+            <CardTitle className="text-lg">AI Recommendations</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {aiRecommendations.map((rec) => (
+              <div
+                key={rec.framework}
+                className="flex items-center justify-between p-3 bg-white rounded-lg border border-orange-100"
+              >
+                <div>
+                  <div className="font-medium text-gray-900">{rec.framework}</div>
+                  <div className="text-sm text-gray-500">{rec.action}</div>
+                </div>
+                <Badge className="bg-orange-100 text-orange-700">{rec.impact}</Badge>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
-        {/* Framework Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-          {FRAMEWORKS.map((framework) => (
-            <FrameworkCard
-              key={framework.id}
-              framework={framework}
-              onClick={(fw) =>
-                setModal({ type: "framework-details", framework: fw })
-              }
-            />
-          ))}
-        </div>
+      {/* Frameworks Grid */}
+      <div className="grid md:grid-cols-2 gap-4">
+        {frameworks.map((framework) => (
+          <Card key={framework.name}>
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <Target className="w-5 h-5 text-[#E85A2B]" />
+                    <h3 className="font-semibold text-gray-900">{framework.name}</h3>
+                  </div>
+                  <p className="text-sm text-gray-500">{framework.provider}</p>
+                </div>
+                <Badge
+                  className={
+                    framework.status === "compliant"
+                      ? "bg-green-100 text-green-700"
+                      : framework.status === "attention"
+                      ? "bg-orange-100 text-orange-700"
+                      : "bg-blue-100 text-blue-700"
+                  }
+                >
+                  {framework.status === "compliant" && <CheckCircle2 className="w-3 h-3 mr-1" />}
+                  {framework.status === "attention" && <AlertCircle className="w-3 h-3 mr-1" />}
+                  {framework.status === "in_progress" && <Clock className="w-3 h-3 mr-1" />}
+                  {framework.status.replace("_", " ")}
+                </Badge>
+              </div>
 
-        {/* Charts Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <EvidenceReuseChart />
-          <SharedRequirementsChart />
-        </div>
+              <div className="space-y-4">
+                <div>
+                  <div className="flex items-center justify-between text-sm mb-1">
+                    <span className="text-gray-500">Overall Progress</span>
+                    <span className="font-medium">{framework.progress}%</span>
+                  </div>
+                  <Progress value={framework.progress} className="h-2" />
+                </div>
 
-        {/* Requirements Breakdown */}
-        <RequirementsBreakdown />
+                <div className="grid grid-cols-4 gap-2 text-center">
+                  <div className="p-2 bg-gray-50 rounded">
+                    <div className="text-lg font-semibold text-gray-900">{framework.controls.total}</div>
+                    <div className="text-xs text-gray-500">Total</div>
+                  </div>
+                  <div className="p-2 bg-green-50 rounded">
+                    <div className="text-lg font-semibold text-green-600">{framework.controls.passed}</div>
+                    <div className="text-xs text-gray-500">Passed</div>
+                  </div>
+                  <div className="p-2 bg-red-50 rounded">
+                    <div className="text-lg font-semibold text-red-600">{framework.controls.failed}</div>
+                    <div className="text-xs text-gray-500">Failed</div>
+                  </div>
+                  <div className="p-2 bg-blue-50 rounded">
+                    <div className="text-lg font-semibold text-blue-600">{framework.controls.pending}</div>
+                    <div className="text-xs text-gray-500">Pending</div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between text-sm text-gray-500 pt-2 border-t">
+                  <div>Last audit: {framework.lastAudit}</div>
+                  <div>Next: {framework.nextAudit}</div>
+                </div>
+
+                <Link href={`/frameworks/${framework.name.toLowerCase().replace(/\s+/g, "-")}`}>
+                  <Button variant="outline" className="w-full gap-1">
+                    View Details
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
-
-      {/* Modals */}
-      {modal?.type === "framework-details" && (
-        <FrameworkDetailsModal
-          framework={modal.framework}
-          onClose={() => setModal(null)}
-        />
-      )}
-      {modal?.type === "ai-mapping" && (
-        <AIAutoMappingModal onClose={() => setModal(null)} />
-      )}
     </div>
   );
 }

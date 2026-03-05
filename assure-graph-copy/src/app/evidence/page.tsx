@@ -4,7 +4,7 @@ import EvidenceContent from "@/components/evidence/EvidenceContent";
 
 export default function EvidencePage() {
   return (
-    <AppLayout mainClassName="bg-gray-50">
+    <AppLayout>
       <EvidenceContent />
     </AppLayout>
   );
