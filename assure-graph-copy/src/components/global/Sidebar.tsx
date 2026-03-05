@@ -2,143 +2,90 @@
 
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
 import clsx from "clsx";
-import { Logo } from "./Logo";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  LayoutDashboard,
+  CheckSquare,
+  Plug,
+  Users,
+  FileText,
+  AlertCircle,
+  Activity,
+  Target,
+  ClipboardCheck,
+  FolderOpen,
+  Search,
+  BookOpen,
+  BarChart3,
+  AlertTriangle,
+  ShieldAlert,
+  ClipboardList,
+  Calculator,
+  CheckCircle,
+  Building2,
+  Server,
+  Bug,
+  Sparkles,
+  ChevronRight,
+  type LucideIcon,
+} from "lucide-react";
 
 interface NavItem {
-  icon: string;
-  label: string;
-  path: string;
+  name: string;
+  href: string;
+  icon: LucideIcon;
   badge?: string;
-  children?: NavItem[];
 }
 
-const getstartedItems: NavItem[] = [
-  {
-    icon: "lni-home",
-    label: "Get Started",
-    path: "/get-started",
-  },
-];
+interface SidebarSection {
+  title: string;
+  items: NavItem[];
+}
 
-const overviewItems: NavItem[] = [
+const sidebarSections: SidebarSection[] = [
   {
-    icon: "lni-dashboard",
-    label: "Dashboard",
-    path: "/dashboard",
-  },
-  {
-    icon: "lni-list",
-    label: "Task",
-    path: "/task",
-  },
-  {
-    icon: "lni-layers",
-    label: "Integrations",
-    path: "/integrations",
-  },
-];
-
-const governanceItems: NavItem[] = [
-  {
-    icon: "lni-user",
-    label: "Personnel",
-    path: "/personnel",
-  },
-  {
-    icon: "lni-shield",
-    label: "Policy Center",
-    path: "/policy",
-  },
-];
-
-const complianceItems: NavItem[] = [
-  {
-    icon: "lni-bookmark",
-    label: "Monitoring",
-    path: "/monitoring",
-  },
-  {
-    icon: "lni-target",
-    label: "Frameworks",
-    path: "/frameworks",
-  },
-  {
-    icon: "lni-check-box",
-    label: "Controls",
-    path: "/controls",
-  },
-  {
-    icon: "lni-folder",
-    label: "Evidence",
-    path: "/evidence",
-  },
-  {
-    icon: "lni-bulb",
-    label: "Audit",
-    path: "/audit",
-    children: [
-      {
-        icon: "",
-        label: "Audit Summary",
-        path: "/audit/summary",
-      },
-      {
-        icon: "",
-        label: "Findings",
-        path: "/audit/findings",
-      },
-      {
-        icon: "",
-        label: "Document Library",
-        path: "/audit/document-library",
-      },
-      {
-        icon: "",
-        label: "Reports",
-        path: "/audit/reports",
-      },
-      {
-        icon: "",
-        label: "Issue Management",
-        path: "/audit/issue-management",
-      },
-    ],
-  },
-];
-
-const rpaItems: NavItem[] = [
-  {
-    icon: "lni-warning",
-    label: "Risk Management",
-    path: "/risk-management",
-    children: [
-      {
-        icon: "",
-        label: "Risk Register",
-        path: "/risk-management/risk-register",
-      },
-      {
-        icon: "",
-        label: "Risk Assessment",
-        path: "/risk-management/risk-assessment",
-      },
+    title: "Overview",
+    items: [
+      { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+      { name: "Tasks", href: "/task", icon: CheckSquare, badge: "8" },
+      { name: "Integrations", href: "/integrations", icon: Plug },
     ],
   },
   {
-    icon: "lni-briefcase",
-    label: "Vendors",
-    path: "/vendors",
+    title: "Governance",
+    items: [
+      { name: "Personnel", href: "/personnel", icon: Users },
+      { name: "Policy Center", href: "/policy", icon: FileText },
+      { name: "Exceptions", href: "/exceptions", icon: AlertCircle, badge: "3" },
+    ],
   },
   {
-    icon: "lni-folder",
-    label: "Assets",
-    path: "/assets",
+    title: "Compliance",
+    items: [
+      { name: "Monitoring", href: "/monitoring", icon: Activity },
+      { name: "Frameworks", href: "/frameworks", icon: Target },
+      { name: "Controls", href: "/controls", icon: ClipboardCheck },
+      { name: "Audits", href: "/audit", icon: Search },
+      { name: "Evidence", href: "/evidence", icon: FolderOpen },
+      { name: "Findings", href: "/audit/findings", icon: AlertTriangle, badge: "5" },
+      { name: "Documents", href: "/audit/document-library", icon: BookOpen },
+      { name: "Reports", href: "/audit/reports", icon: BarChart3 },
+    ],
   },
   {
-    icon: "lni-shield",
-    label: "Vulnerabilities",
-    path: "/vulnerabilities",
+    title: "Risk",
+    items: [
+      { name: "Risk Management", href: "/risk-management", icon: ShieldAlert },
+      { name: "Risk Register", href: "/risk-management/risk-register", icon: ClipboardList },
+      { name: "Risk Assessment", href: "/risk-management/risk-assessment", icon: Calculator },
+      { name: "Risk Acceptance", href: "/risk-management/risk-acceptance", icon: CheckCircle },
+      { name: "Vendors", href: "/vendors", icon: Building2 },
+      { name: "Assets", href: "/assets", icon: Server },
+      { name: "Vulnerabilities", href: "/vulnerabilities", icon: Bug, badge: "12" },
+    ],
   },
 ];
 
@@ -150,166 +97,107 @@ interface SidebarProps {
 export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const [expandedItems, setExpandedItems] = useState<string[]>([]);
+  const [expandedSections, setExpandedSections] = useState<string[]>([
+    "Overview",
+    "Governance",
+    "Compliance",
+    "Risk",
+  ]);
 
-  const handleNavigation = (path: string) => {
-    router.push(path);
+  const toggleSection = (title: string) => {
+    setExpandedSections((prev) =>
+      prev.includes(title)
+        ? prev.filter((t) => t !== title)
+        : [...prev, title]
+    );
+  };
+
+  const handleNavClick = (href: string) => {
+    router.push(href);
     if (onClose) onClose();
   };
 
-  const toggleExpanded = (path: string) => {
-    setExpandedItems((prev) =>
-      prev.includes(path) ? prev.filter((p) => p !== path) : [...prev, path],
-    );
-  };
-
-  const isItemActive = (item: NavItem) => {
-    if (pathname === item.path) return true;
-    if (item.children) {
-      return item.children.some(
-        (child) =>
-          pathname === child.path || pathname.startsWith(child.path + "/"),
-      );
-    }
-    return pathname.startsWith(item.path + "/");
-  };
-
-  const isChildActive = (childPath: string) => {
-    return pathname === childPath || pathname.startsWith(childPath + "/");
-  };
-
-  const renderNavItem = (item: NavItem, isChild: boolean = false) => {
-    const isActive = isItemActive(item);
-    const isDirectActive = isChild ? isChildActive(item.path) : isActive;
-    const hasChildren = item.children && item.children.length > 0;
-    const isExpanded = expandedItems.includes(item.path);
-
-    return (
-      <div key={item.path}>
-        <div className="flex w-full">
-          {!isChild && (
-            <div
-              className={clsx(
-                "transition-all",
-                isActive ? "bg-brand-5 w-1 h-10 rounded-r-2xl" : "w-0",
-              )}
-            ></div>
-          )}
-          <button
-            onClick={() => {
-              if (hasChildren) {
-                toggleExpanded(item.path);
-              } else {
-                handleNavigation(item.path);
-              }
-            }}
-            className={clsx(
-              "w-full cursor-pointer flex items-center justify-between py-2.5 text-sm rounded-r-lg transition-colors outline-none focus:outline-none border-none relative",
-              isChild ? "pl-12 pr-4" : "pl-4 pr-4",
-              isActive && !isChild
-                ? "bg-brand-0-5 text-brand-5 font-medium"
-                : isChild && isDirectActive
-                  ? "text-brand-5 font-normal"
-                  : "text-gray-500 hover:bg-gray-100 font-normal",
-            )}
-          >
-            <div className="flex items-center gap-3">
-              {!isChild && item.icon && (
-                <i className={clsx("lni", item.icon, "text-lg")}></i>
-              )}
-              <span className="text-sm">{item.label}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              {item.badge && (
-                <span className="px-2 py-0.5 text-xs bg-brand-1 text-brand-5 rounded">
-                  {item.badge}
-                </span>
-              )}
-              {hasChildren && (
-                <i
-                  className={clsx(
-                    "lni lni-chevron-down text-sm text-gray-500 transition-transform",
-                    isExpanded && "rotate-180",
-                  )}
-                ></i>
-              )}
-            </div>
-          </button>
-        </div>
-
-        {/* Render children if expanded */}
-        {hasChildren && isExpanded && (
-          <div className="relative">
-            <div className="absolute left-7.5 top-0 bottom-0 w-px bg-gray-200"></div>
-
-            <div className="mt-1 space-y-1">
-              {item.children!.map((child) => renderNavItem(child, true))}
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const renderSection = (title: string, items: NavItem[]) => {
-    return (
-      <div className="mb-6 pr-4 py-1 bg-[#FCFCFD]">
-        {title && (
-          <h3 className="px-4 mb-2 text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
-            {title}
-          </h3>
-        )}
-        <div className="space-y-1">
-          {items.map((item) => renderNavItem(item))}
-        </div>
-      </div>
-    );
+  const isActive = (href: string) => {
+    if (href === "/dashboard") return pathname === "/dashboard";
+    return pathname === href || pathname.startsWith(href + "/");
   };
 
   return (
-    <div
+    <aside
       className={clsx(
-        "w-64 bg-[#FCFCFD] border-r border-gray-200 flex flex-col",
-        "fixed left-0 top-0 h-screen z-50 transform transition-transform duration-300 ease-in-out",
+        "w-64 bg-white border-r min-h-[calc(100vh-64px)] overflow-y-auto flex flex-col",
+        "fixed left-0 top-16 h-[calc(100vh-64px)] z-30 transform transition-transform duration-300 ease-in-out",
         "lg:translate-x-0",
-        isOpen ? "translate-x-0" : "-translate-x-full",
+        isOpen ? "translate-x-0" : "-translate-x-full"
       )}
     >
-      {/* Logo */}
-      <div className="p-4">
-        <div className="flex items-center gap-2">
-          <Logo />
-        </div>
-      </div>
-
-      {/* Navigation */}
-      <div className="flex-1 overflow-y-auto py-4 scrollbar-hide">
-        {renderSection("", getstartedItems)}
-        {renderSection("OVERVIEW", overviewItems)}
-        {renderSection("GOVERNANCE", governanceItems)}
-        {renderSection("COMPLIANCE", complianceItems)}
-        {renderSection("RISK", rpaItems)}
-      </div>
-
-      {/* User Profile */}
-      <div className="p-4">
-        <div className="flex bg-white shadow-lg items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors">
-          <img
-            src="https://api.dicebear.com/7.x/avataaars/svg?seed=user"
-            alt="User"
-            className="w-10 h-10 rounded-full ring-2 ring-gray-100"
-          />
-          <div className="flex-1 min-w-0">
-            <div className="text-sm font-semibold text-gray-900 truncate">
-              User Name
-            </div>
-            <div className="text-xs text-gray-500 truncate">user@email.com</div>
+      <nav className="p-4 space-y-6 flex-1">
+        {sidebarSections.map((section) => (
+          <div key={section.title}>
+            <button
+              onClick={() => toggleSection(section.title)}
+              className="flex items-center justify-between w-full text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 hover:text-gray-700"
+            >
+              {section.title}
+              <ChevronRight
+                className={clsx(
+                  "w-4 h-4 transition-transform",
+                  expandedSections.includes(section.title) && "rotate-90"
+                )}
+              />
+            </button>
+            {expandedSections.includes(section.title) && (
+              <ul className="space-y-1">
+                {section.items.map((item) => {
+                  const active = isActive(item.href);
+                  return (
+                    <li key={item.name}>
+                      <button
+                        onClick={() => handleNavClick(item.href)}
+                        className={clsx(
+                          "flex items-center justify-between w-full px-3 py-2 rounded-lg text-sm transition-colors text-left",
+                          active
+                            ? "bg-orange-50 text-[#E85A2B] font-medium"
+                            : "text-gray-700 hover:bg-gray-50"
+                        )}
+                      >
+                        <div className="flex items-center gap-3">
+                          <item.icon className="w-4 h-4" />
+                          <span>{item.name}</span>
+                        </div>
+                        {item.badge && (
+                          <Badge variant="secondary" className="text-xs">
+                            {item.badge}
+                          </Badge>
+                        )}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </div>
-          <button className="p-1.5 hover:bg-gray-100 rounded transition-colors">
-            <i className="lni lni-exit text-red-500 text-lg"></i>
-          </button>
+        ))}
+      </nav>
+
+      <div className="p-4">
+        <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-4 text-white">
+          <div className="flex items-center gap-2 mb-2">
+            <Sparkles className="w-5 h-5" />
+            <span className="font-semibold">AssureAI</span>
+          </div>
+          <p className="text-sm text-orange-100 mb-3">
+            Get intelligent insights about your GRC program
+          </p>
+          <Button
+            size="sm"
+            variant="secondary"
+            className="w-full bg-white text-orange-600 hover:bg-orange-50"
+          >
+            Ask AI Assistant
+          </Button>
         </div>
       </div>
-    </div>
+    </aside>
   );
 }
