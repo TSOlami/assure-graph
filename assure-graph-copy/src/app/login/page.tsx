@@ -1,143 +1,94 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { Logo } from "@/components/global/Logo";
-import { Loader } from "@/components/global/Loader";
+import { useState } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Shield, ArrowRight, Mail, Lock, Sparkles } from "lucide-react";
 
-export default function LoginPage() {
-  const router = useRouter();
-
-  const [step, setStep] = useState<"email" | "otp">("email");
+export default function WelcomePage() {
   const [email, setEmail] = useState("");
-  const [otp, setOtp] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-
-  const isEmailStep = step === "email";
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (isEmailStep) {
-      if (!email.trim() || isLoading) return;
-      setStep("otp");
-      return;
-    }
-
-    if (!otp.trim() || isLoading) return;
-
-    setIsLoading(true);
-
-    // Simulate verification, then navigate to dashboard after 3 seconds
-    window.setTimeout(() => {
-      router.push("/dashboard");
-    }, 3000);
-  };
+  const [password, setPassword] = useState("");
 
   return (
-    <main className="min-h-screen bg-white lg:grid lg:grid-cols-2">
-      <section className="relative hidden bg-white p-4 lg:block">
-        <div className="relative h-full w-full overflow-hidden rounded-lg">
-          <Image
-            src="/images/login.png"
-            alt="AssureGraph login visual"
-            fill
-            priority
-            sizes="(min-width: 1024px) 50vw, 0vw"
-            className="object-cover"
-          />
-        </div>
-      </section>
-
-      <section className="flex w-full items-center justify-center bg-white px-6 py-10">
-        <div className="relative w-full max-w-sm">
-          {isLoading && (
-            <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/80 backdrop-blur-[1px]">
-              <Loader />
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-white flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <Link href="/" className="inline-flex items-center gap-2">
+            <div className="w-10 h-10 bg-[#E85A2B] rounded-lg flex items-center justify-center">
+              <Shield className="w-6 h-6 text-white" />
             </div>
-          )}
+            <span className="text-2xl font-bold text-gray-900">AssureGraph</span>
+          </Link>
+        </div>
 
-          <div className="space-y-10">
-            <header className="space-y-6">
-              <Logo />
-
-              <div className="space-y-2">
-                <h1 className="text-2xl font-semibold text-neutral-900">
-                  Welcome!
-                </h1>
-                <p className="max-w-xs text-base font-normal leading-relaxed text-neutral-500">
-                  {isEmailStep
-                    ? "Get started with ControlGraph AI and take control of your GRC processes. Sign in with your registered email."
-                    : "Enter the OTP code sent to your registered email to sign in."}
-                </p>
+        <Card>
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl text-center">Welcome Back</CardTitle>
+            <CardDescription className="text-center">
+              Sign in to access your GRC dashboard
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Email</label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  type="email"
+                  placeholder="you@company.com"
+                  className="pl-10"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
               </div>
-            </header>
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-1.5">
-                <label
-                  htmlFor={isEmailStep ? "email" : "otp"}
-                  className="block text-sm font-normal text-neutral-600"
-                >
-                  {isEmailStep ? "Email" : "One-time password"}
-                </label>
-
-                <div className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-3 py-2 shadow-sm focus-within:border-brand-5 focus-within:ring-1 focus-within:ring-brand-5">
-                  {isEmailStep ? (
-                    <i
-                      className="lni lni-envelope text-base text-neutral-400"
-                      aria-hidden="true"
-                    />
-                  ) : (
-                    <i
-                      className="lni lni-lock-alt text-base text-neutral-400"
-                      aria-hidden="true"
-                    />
-                  )}
-                  <span
-                    className="h-5 w-px bg-neutral-200"
-                    aria-hidden="true"
-                  />
-                  {isEmailStep ? (
-                    <input
-                      id="email"
-                      type="email"
-                      autoComplete="email"
-                      required
-                      value={email}
-                      onChange={(event) => setEmail(event.target.value)}
-                      placeholder="Work email"
-                      className="w-full border-none bg-transparent text-sm text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:ring-0"
-                    />
-                  ) : (
-                    <input
-                      id="otp"
-                      type="text"
-                      inputMode="numeric"
-                      autoComplete="one-time-code"
-                      required
-                      value={otp}
-                      onChange={(event) => setOtp(event.target.value)}
-                      placeholder="OTP code"
-                      className="w-full border-none bg-transparent text-sm tracking-[0.3em] text-neutral-900 placeholder:tracking-normal placeholder:text-neutral-400 focus:outline-none focus:ring-0"
-                    />
-                  )}
-                </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Password</label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  type="password"
+                  placeholder="••••••••"
+                  className="pl-10"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
               </div>
+            </div>
+            <Link href="/onboarding">
+              <Button className="w-full bg-[#E85A2B] hover:bg-[#d14d20] text-white">
+                Sign In
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </Link>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-white px-2 text-gray-500">Or</span>
+              </div>
+            </div>
+            <Link href="/onboarding">
+              <Button variant="outline" className="w-full">
+                Create Account
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
 
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="inline-flex w-full items-center justify-center rounded-lg bg-brand-5 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-brand-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-5 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:cursor-not-allowed disabled:opacity-70"
-              >
-                {isEmailStep ? "Get OTP" : "Sign in"}
-              </button>
-            </form>
+        <div className="mt-6 flex items-start gap-3 bg-orange-50 p-4 rounded-lg border border-orange-100">
+          <Sparkles className="w-5 h-5 text-[#E85A2B] mt-0.5" />
+          <div className="text-sm text-gray-600">
+            <span className="font-medium text-gray-900">New to AssureGraph?</span>
+            <p className="mt-1">
+              Start your 14-day free trial with full access to all features.
+            </p>
           </div>
         </div>
-      </section>
-    </main>
+      </div>
+    </div>
   );
 }
-
