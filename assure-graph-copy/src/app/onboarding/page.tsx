@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Shield, ArrowRight, CheckCircle2, Sparkles, Building2, User, Lock } from "lucide-react";
+import { Shield, ArrowRight, Sparkles, Building2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 export default function OnboardingPage() {
