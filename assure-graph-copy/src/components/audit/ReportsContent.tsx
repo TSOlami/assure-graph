@@ -1,107 +1,143 @@
 "use client";
 
-import { useState } from "react";
-import clsx from "clsx";
-import { REPORTS } from "@/data/audit";
-import { AIBanner } from "@/components/ui/AIBanner";
-import CreateReportModal from "./modals/CreateReportModal";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { FileText, Download, Calendar, Sparkles, BarChart3, Shield, AlertTriangle } from "lucide-react";
+
+const reports = [
+  {
+    id: "RPT-001",
+    name: "Executive Compliance Summary",
+    type: "Dashboard",
+    description: "High-level compliance metrics for leadership",
+    lastGenerated: "2024-03-08",
+    schedule: "Weekly",
+    aiGenerated: true,
+  },
+  {
+    id: "RPT-002",
+    name: "SOC 2 Readiness Assessment",
+    type: "Compliance",
+    description: "Detailed SOC 2 control testing results",
+    lastGenerated: "2024-03-05",
+    schedule: "Monthly",
+    aiGenerated: false,
+  },
+  {
+    id: "RPT-003",
+    name: "Risk Register Summary",
+    type: "Risk",
+    description: "Current risk posture and mitigation status",
+    lastGenerated: "2024-03-07",
+    schedule: "Monthly",
+    aiGenerated: true,
+  },
+  {
+    id: "RPT-004",
+    name: "Open Findings Report",
+    type: "Audit",
+    description: "All open audit findings with remediation plans",
+    lastGenerated: "2024-03-10",
+    schedule: "Weekly",
+    aiGenerated: false,
+  },
+];
+
+const aiInsights = [
+  {
+    title: "Compliance Trend Analysis",
+    insight: "Your compliance score improved 8% over the last quarter",
+    recommendation: "Generate executive report to share with board",
+  },
+  {
+    title: "Risk Prediction",
+    insight: "3 controls likely to fail next audit based on current trends",
+    recommendation: "Schedule proactive remediation before April 15",
+  },
+];
 
 export default function ReportsContent() {
-  const [modal, setModal] = useState<"create-report" | null>(null);
-
   return (
-    <div className="flex flex-col min-h-full">
-      {/* Page Header */}
-      <div className="bg-white border-b border-slate-200 px-6 pt-5 pb-5">
-        <div className="flex items-start justify-between">
-          <h1 className="text-2xl font-semibold text-gray-900">Reports</h1>
-          <button
-            onClick={() => setModal("create-report")}
-            className="flex items-center gap-2 px-4 py-2 bg-brand-5 text-white rounded-lg text-sm font-medium hover:bg-brand-6 transition-colors"
-          >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M8 3V13M3 8H13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-            Create Report
-          </button>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Reports</h1>
+          <p className="text-gray-500">Generate and schedule compliance reports</p>
         </div>
+        <Button className="bg-[#E85A2B] hover:bg-[#d14d20] text-white gap-2">
+          <Sparkles className="w-4 h-4" />
+          AI Report Builder
+        </Button>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 p-6 space-y-6 bg-[#F5F5F7]">
-        {/* AI Banner */}
-        <AIBanner
-          title="AI-Generated Report Recommendation"
-          confidence="97% Confident"
-          description="Based on your audit schedule and recent activity, AssureGraph AI recommends creating a 'Pre-Audit Readiness Report' to identify gaps before your upcoming SOC 2 audit."
-          primaryActionLabel="Create Recommended Report"
-        />
-
-        {/* Report Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-          {REPORTS.map((report) => (
-            <div key={report.id} className="bg-white rounded-xl border border-gray-200 p-5">
-              {/* Badge */}
-              <div className="mb-4">
-                <span className={clsx(
-                  "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium",
-                  report.badge === "AI Generated"
-                    ? "bg-red-50 text-red-600"
-                    : "bg-green-50 text-green-600"
-                )}>
-                  {report.badge === "AI Generated" && (
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                      <path d="M6 1L7 3.5L9.5 4L7 4.5L6 7L5 4.5L2.5 4L5 3.5L6 1Z" stroke="currentColor" strokeWidth="0.8" strokeLinejoin="round" />
-                    </svg>
-                  )}
-                  {report.badge === "Manual" && (
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                      <path d="M2.5 8.5L8.5 2.5L9.5 3.5L3.5 9.5H2.5V8.5Z" stroke="currentColor" strokeWidth="1" strokeLinejoin="round" />
-                    </svg>
-                  )}
-                  {report.badge}
-                </span>
+      {/* AI Insights */}
+      <Card className="border-orange-200 bg-gradient-to-r from-orange-50 to-white">
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-[#E85A2B]" />
+            <CardTitle className="text-lg">AI-Generated Insights</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid md:grid-cols-2 gap-4">
+            {aiInsights.map((item) => (
+              <div
+                key={item.title}
+                className="p-4 bg-white rounded-lg border border-orange-100"
+              >
+                <div className="font-medium text-gray-900 mb-1">{item.title}</div>
+                <p className="text-sm text-gray-600 mb-2">{item.insight}</p>
+                <p className="text-sm text-[#E85A2B]">{item.recommendation}</p>
               </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
-              {/* Title */}
-              <h3 className="text-base font-semibold text-gray-900 mb-4">{report.title}</h3>
-
-              {/* Details */}
-              <div className="space-y-2 mb-5">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500">Frequency:</span>
-                  <span className="text-sm font-medium text-gray-700">{report.frequency}</span>
+      {/* Reports Grid */}
+      <div className="grid md:grid-cols-2 gap-4">
+        {reports.map((report) => (
+          <Card key={report.id}>
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-gray-100 rounded-lg">
+                    {report.type === "Dashboard" && <BarChart3 className="w-5 h-5 text-gray-600" />}
+                    {report.type === "Compliance" && <Shield className="w-5 h-5 text-gray-600" />}
+                    {report.type === "Risk" && <AlertTriangle className="w-5 h-5 text-gray-600" />}
+                    {report.type === "Audit" && <FileText className="w-5 h-5 text-gray-600" />}
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-gray-900">{report.name}</h3>
+                    <p className="text-sm text-gray-500">{report.description}</p>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500">Last run:</span>
-                  <span className="text-sm font-medium text-gray-700">{report.lastRun}</span>
+                <Button variant="ghost" size="sm">
+                  <Download className="w-4 h-4" />
+                </Button>
+              </div>
+              <div className="flex items-center gap-2 mt-4">
+                <Badge variant="outline">{report.type}</Badge>
+                {report.aiGenerated && (
+                  <Badge className="bg-orange-100 text-[#E85A2B] gap-1">
+                    <Sparkles className="w-3 h-3" />
+                    AI Enhanced
+                  </Badge>
+                )}
+              </div>
+              <div className="flex items-center justify-between mt-4 pt-4 border-t text-sm text-gray-500">
+                <div className="flex items-center gap-1">
+                  <Calendar className="w-4 h-4" />
+                  {report.schedule}
                 </div>
+                <div>Last: {report.lastGenerated}</div>
               </div>
-
-              {/* Actions */}
-              <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
-                <button className="flex-1 flex items-center justify-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d="M1 8C1 8 3.5 3 8 3C12.5 3 15 8 15 8C15 8 12.5 13 8 13C3.5 13 1 8 1 8Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
-                    <circle cx="8" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.2" />
-                  </svg>
-                  View
-                </button>
-                <button className="flex-1 flex items-center justify-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d="M8 12V3M8 3L4.5 6.5M8 3L11.5 6.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M3 13H13" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-                  </svg>
-                  Export
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
-
-      {/* Modals */}
-      {modal === "create-report" && <CreateReportModal onClose={() => setModal(null)} />}
     </div>
   );
 }

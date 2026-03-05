@@ -1,267 +1,176 @@
 "use client";
 
-import { useState } from "react";
-import clsx from "clsx";
-import { FINDINGS, Finding, FindingSeverity, FindingStatus } from "@/data/audit";
-import { StatCard } from "@/components/ui/StatCard";
-import { Pagination } from "@/components/ui/Pagination";
-import { AIBanner } from "@/components/ui/AIBanner";
-import AddFindingModal from "./modals/AddFindingModal";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { AlertTriangle, CheckCircle2, Clock, ArrowRight, Sparkles, Target } from "lucide-react";
 
-const severityColors: Record<FindingSeverity, { bg: string; text: string }> = {
-  Critical: { bg: "bg-[#FEE2E2]", text: "text-[#DC2626]" },
-  High: { bg: "bg-[#FFF3E0]", text: "text-[#F57C00]" },
-  Medium: { bg: "bg-[#FFF8E1]", text: "text-[#F9A825]" },
-  Low: { bg: "bg-[#E8F5E9]", text: "text-[#2E7D32]" },
-};
-
-const statusConfig: Record<FindingStatus, { bg: string; text: string; icon: React.ReactNode }> = {
-  Open: {
-    bg: "bg-orange-50",
-    text: "text-orange-600",
-    icon: <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" strokeWidth="1.2" /></svg>,
+const findings = [
+  {
+    id: "FIND-089",
+    title: "Missing encryption at rest for database",
+    description: "Production database prod-db-01 does not have encryption enabled",
+    severity: "High",
+    status: "open",
+    framework: "PCI DSS",
+    control: "CC-006",
+    assignedTo: "Emily Davis",
+    dueDate: "2024-03-20",
+    aiRecommendation: "Enable AWS RDS encryption - estimated 2 hours downtime",
   },
-  "In-progress": {
-    bg: "bg-[#FFF3E0]",
-    text: "text-[#F57C00]",
-    icon: <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" strokeWidth="1.2" /><path d="M7 4V7L9 8.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" /></svg>,
+  {
+    id: "FIND-092",
+    title: "Dormant user accounts not disabled",
+    description: "15 user accounts with no activity in 90 days still active",
+    severity: "Medium",
+    status: "in_progress",
+    framework: "SOC 2",
+    control: "AC-002",
+    assignedTo: "Mike Johnson",
+    dueDate: "2024-03-15",
+    aiRecommendation: "Bulk disable accounts - no business impact expected",
   },
-  Resolved: {
-    bg: "bg-green-50",
-    text: "text-green-600",
-    icon: <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" strokeWidth="1.2" /><path d="M4.5 7L6.5 9L9.5 5.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" /></svg>,
+  {
+    id: "FIND-095",
+    title: "Incomplete audit log retention",
+    description: "Audit logs for application X only retained for 6 months",
+    severity: "Low",
+    status: "open",
+    framework: "HIPAA",
+    control: "AU-003",
+    assignedTo: "Tom Wilson",
+    dueDate: "2024-03-30",
+    aiRecommendation: "Update log retention policy in CloudWatch",
   },
-};
+  {
+    id: "FIND-087",
+    title: "Missing vulnerability scan documentation",
+    description: "Q4 vulnerability scan results not properly documented",
+    severity: "Medium",
+    status: "remediated",
+    framework: "ISO 27001",
+    control: "SI-004",
+    assignedTo: "Sarah Chen",
+    dueDate: "2024-03-01",
+    aiRecommendation: null,
+  },
+];
 
 export default function FindingsContent() {
-  const [modal, setModal] = useState<"add-finding" | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [selectedRows, setSelectedRows] = useState<string[]>([]);
-
-  const totalFindings = 24;
-  const criticalCount = 3;
-  const highCount = 8;
-  const mediumCount = 12;
-  const lowCount = 3;
-  const openCount = 15;
-  const resolvedCount = 9;
-
-  const filteredFindings = FINDINGS.filter((f) => {
-    if (searchQuery && !f.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-    return true;
-  });
-
-  const toggleRow = (id: string) => {
-    setSelectedRows((prev) => prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id]);
-  };
-
-  const toggleAll = () => {
-    if (selectedRows.length === filteredFindings.length) {
-      setSelectedRows([]);
-    } else {
-      setSelectedRows(filteredFindings.map((f) => f.id));
-    }
-  };
-
   return (
-    <div className="flex flex-col min-h-full">
-      {/* Page Header */}
-      <div className="bg-white border-b border-slate-200 px-6 pt-5 pb-5">
-        <div className="flex items-start justify-between">
-          <h1 className="text-2xl font-semibold text-gray-900">Findings</h1>
-          <button
-            onClick={() => setModal("add-finding")}
-            className="flex items-center gap-2 px-4 py-2 bg-brand-5 text-white rounded-lg text-sm font-medium hover:bg-brand-6 transition-colors"
-          >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M8 3V13M3 8H13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-            Add Findings
-          </button>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 p-6 space-y-6 bg-[#F5F5F7]">
-        {/* Stats Row */}
-        <div className="grid grid-cols-7 gap-3">
-          <StatCard value={totalFindings} label="Total" />
-          <StatCard value={criticalCount} label="Critical" accentColor="red" variant="accent" />
-          <StatCard value={highCount} label="High" accentColor="amber" variant="accent" />
-          <StatCard value={mediumCount} label="Medium" accentColor="green" variant="accent" />
-          <StatCard value={lowCount} label="Low" />
-          <StatCard value={openCount} label="Open" variant="dark" />
-          <StatCard value={resolvedCount} label="Resolved" accentColor="green" variant="accent" />
-        </div>
-
-        {/* AI Banner */}
-        <AIBanner
-          variant="warning"
-          title="AI-Detected Finding Pattern"
-          confidence="87% Confident"
-          description="AssureGraph AI detected that 3 findings are related to the same root cause: incomplete MFA rollout. Consolidating remediation efforts could save 40% time."
-          primaryActionLabel="View Consolidated Plan"
-        />
-
-        {/* Search and Filters */}
-        <div className="flex items-center gap-3">
-          <div className="relative flex-1 max-w-sm">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5" />
-              <path d="M11 11L14 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-            <input
-              type="text"
-              placeholder="Search findings..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3.5 py-2 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-5/20 focus:border-brand-5 bg-white"
-            />
-          </div>
-
-          <FilterButton label="Severity" hasFilterIcon />
-          <FilterButton label="Status" />
-          <FilterButton label="Source" />
-
-          <div className="ml-auto">
-            <button className="flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 transition-colors">
-              Export as
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        {/* Table */}
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-100">
-                <th className="w-12 px-4 py-3">
-                  <input
-                    type="checkbox"
-                    checked={selectedRows.length === filteredFindings.length && filteredFindings.length > 0}
-                    onChange={toggleAll}
-                    className="w-4 h-4 rounded border-gray-300"
-                  />
-                </th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Finding</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Control</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Severity</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Due Date</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Owner</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredFindings.map((finding) => (
-                <FindingRow
-                  key={finding.id}
-                  finding={finding}
-                  selected={selectedRows.includes(finding.id)}
-                  onToggle={() => toggleRow(finding.id)}
-                />
-              ))}
-            </tbody>
-          </table>
-
-          <Pagination currentPage={currentPage} totalPages={10} onPageChange={setCurrentPage} />
-        </div>
-      </div>
-
-      {/* Modals */}
-      {modal === "add-finding" && <AddFindingModal onClose={() => setModal(null)} />}
-    </div>
-  );
-}
-
-function FindingRow({ finding, selected, onToggle }: { finding: Finding; selected: boolean; onToggle: () => void }) {
-  const severity = severityColors[finding.severity];
-  const status = statusConfig[finding.status];
-
-  return (
-    <tr className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-      <td className="px-4 py-3">
-        <input type="checkbox" checked={selected} onChange={onToggle} className="w-4 h-4 rounded border-gray-300" />
-      </td>
-      <td className="px-4 py-3">
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <p className="text-sm font-medium text-gray-900">{finding.title}</p>
-          <p className="text-xs text-gray-500">{finding.code}</p>
-          {finding.aiSuggested && (
-            <p className="text-xs text-brand-5 mt-0.5">AI remediation suggested</p>
-          )}
-          {finding.aiGenerated && (
-            <p className="text-xs text-brand-5 mt-0.5">AI generated</p>
-          )}
+          <h1 className="text-2xl font-bold text-gray-900">Findings</h1>
+          <p className="text-gray-500">Track and remediate audit findings</p>
         </div>
-      </td>
-      <td className="px-4 py-3 text-sm text-gray-700">{finding.control}</td>
-      <td className="px-4 py-3">
-        <span className={clsx("px-2.5 py-1 rounded-full text-xs font-medium", severity.bg, severity.text)}>
-          {finding.severity}
-        </span>
-      </td>
-      <td className="px-4 py-3">
-        <span className={clsx("flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium w-fit", status.bg, status.text)}>
-          {status.icon}
-          {finding.status}
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </span>
-      </td>
-      <td className="px-4 py-3 text-sm text-gray-700">{finding.dueDate}</td>
-      <td className="px-4 py-3">
-        {finding.owner ? (
-          <div className="flex items-center gap-2">
-            {finding.ownerAvatar ? (
-              <img
-                src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${finding.ownerAvatar}`}
-                alt={finding.owner}
-                className="w-7 h-7 rounded-full"
-              />
-            ) : (
-              <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <circle cx="7" cy="5" r="2.5" stroke="#9CA3AF" strokeWidth="1.2" />
-                  <path d="M2.5 12.5C2.5 10 4.5 8.5 7 8.5C9.5 8.5 11.5 10 11.5 12.5" stroke="#9CA3AF" strokeWidth="1.2" strokeLinecap="round" />
-                </svg>
-              </div>
-            )}
-            <span className="text-sm text-gray-700">{finding.owner}</span>
-          </div>
-        ) : (
-          <button className="flex items-center gap-1.5 text-sm text-brand-5 font-medium">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <circle cx="7" cy="5" r="2.5" stroke="currentColor" strokeWidth="1.2" />
-              <path d="M2.5 12.5C2.5 10 4.5 8.5 7 8.5C9.5 8.5 11.5 10 11.5 12.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-            </svg>
-            Assign
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-        )}
-      </td>
-    </tr>
-  );
-}
+        <Button className="bg-[#E85A2B] hover:bg-[#d14d20] text-white gap-2">
+          <AlertTriangle className="w-4 h-4" />
+          New Finding
+        </Button>
+      </div>
 
-function FilterButton({ label, hasFilterIcon }: { label: string; hasFilterIcon?: boolean }) {
-  return (
-    <button className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-700 bg-white hover:bg-gray-50 transition-colors">
-      {hasFilterIcon && (
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-          <path d="M1.5 3H12.5M3.5 7H10.5M5.5 11H8.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-        </svg>
-      )}
-      {label}
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-        <path d="M3.5 5.5L7 9L10.5 5.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    </button>
+      {/* Stats */}
+      <div className="grid sm:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-6">
+            <div className="text-2xl font-bold text-gray-900">24</div>
+            <div className="text-sm text-gray-500">Total Findings</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-6">
+            <div className="text-2xl font-bold text-red-600">5</div>
+            <div className="text-sm text-gray-500">High Severity</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-6">
+            <div className="text-2xl font-bold text-orange-600">8</div>
+            <div className="text-sm text-gray-500">Open</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-6">
+            <div className="text-2xl font-bold text-green-600">11</div>
+            <div className="text-sm text-gray-500">Remediated</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Findings List */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">All Findings</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {findings.map((finding) => (
+              <div
+                key={finding.id}
+                className="p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-sm text-gray-500">{finding.id}</span>
+                      <Badge
+                        className={
+                          finding.severity === "High"
+                            ? "bg-red-100 text-red-700"
+                            : finding.severity === "Medium"
+                            ? "bg-orange-100 text-orange-700"
+                            : "bg-blue-100 text-blue-700"
+                        }
+                      >
+                        <AlertTriangle className="w-3 h-3 mr-1" />
+                        {finding.severity}
+                      </Badge>
+                      <Badge
+                        className={
+                          finding.status === "remediated"
+                            ? "bg-green-100 text-green-700"
+                            : finding.status === "in_progress"
+                            ? "bg-blue-100 text-blue-700"
+                            : "bg-orange-100 text-orange-700"
+                        }
+                      >
+                        {finding.status === "remediated" && <CheckCircle2 className="w-3 h-3 mr-1" />}
+                        {finding.status === "in_progress" && <Clock className="w-3 h-3 mr-1" />}
+                        {finding.status === "open" && <AlertTriangle className="w-3 h-3 mr-1" />}
+                        {finding.status.replace("_", " ")}
+                      </Badge>
+                    </div>
+                    <h3 className="font-medium text-gray-900 mt-2">{finding.title}</h3>
+                    <p className="text-sm text-gray-600 mt-1">{finding.description}</p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <Badge variant="outline">{finding.framework}</Badge>
+                      <Badge variant="outline" className="cursor-pointer hover:bg-gray-100">
+                        <Target className="w-3 h-3 mr-1" />
+                        {finding.control}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                      <span>Assigned: {finding.assignedTo}</span>
+                      <span>Due: {finding.dueDate}</span>
+                    </div>
+                    {finding.aiRecommendation && (
+                      <div className="flex items-start gap-2 mt-3 p-2 bg-orange-50 rounded-lg">
+                        <Sparkles className="w-4 h-4 text-[#E85A2B] mt-0.5" />
+                        <span className="text-sm text-gray-700">{finding.aiRecommendation}</span>
+                      </div>
+                    )}
+                  </div>
+                  <Button variant="ghost" size="sm">
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
